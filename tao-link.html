@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tạo Hàng Loạt Link Mời Tốt Nghiệp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: rgba(230, 184, 92, 0.28);
+      --gold: #e6b85c;
+      --gold-dark: #c89128;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --green: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .panel {
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.94rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--gold);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 92px;
+      line-height: 1.5;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 10px 16px;
+      transition: transform 0.15s, filter 0.15s, background 0.15s;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: #0f172a;
+    }
+
+    .btn-gold:hover { filter: brightness(1.06); }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .btn-outline:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .result-header h2 {
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+
+    .list-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .item-card.copied {
+      border-color: rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.07);
+    }
+
+    .item-info {
+      min-width: 220px;
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-done {
+      font-size: 0.72rem;
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+
+    .item-card.copied .badge-done {
+      display: inline-block;
+    }
+
+    .item-url {
+      font-size: 0.8rem;
+      color: var(--muted);
+      word-break: break-all;
+      margin-top: 4px;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: 7px 11px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+    }
+
+    .btn-preview {
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      padding: 7px 11px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-preview:hover { background: rgba(255, 255, 255, 0.16); }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #22c55e;
+      color: #052e16;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 99;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎓 Trình Tạo Link Mời Hàng Loạt</h1>
+      <p>Nhập danh sách tên bạn bè để tạo nhanh từng đường link thiệp mời cá nhân hóa</p>
+    </header>
+
+    <section class="panel">
+      <div class="field">
+        <label for="base-url">1. Link trang web GitHub Pages của anh</label>
+        <input type="text" id="base-url" placeholder="Ví dụ: https://tenanh.github.io/tot-nghiep/" />
+        <p class="hint">Nếu anh up file này chung lên GitHub thì ô trên sẽ tự điền đúng link web của anh.</p>
+      </div>
+
+      <div class="field">
+        <label for="names-input">2. Danh sách tên cần mời (ngăn cách bằng dấu phẩy hoặc xuống dòng)</label>
+        <textarea id="names-input" placeholder="Ví dụ: Minh Anh, Tuấn Kiệt, Thảo Vy, Anh Khoa&#10;Hoặc mỗi tên 1 dòng..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="msg-template">3. Mẫu tin nhắn gửi kèm (tùy chọn)</label>
+        <textarea id="msg-template" style="min-height: 70px;">Thân mời {ten} đến dự lễ tốt nghiệp của mình nha! Bấm vào link này để mở thiệp mời nhé 🎓✨: {link}</textarea>
+        <p class="hint">Giữ nguyên chữ <b>{ten}</b> và <b>{link}</b> để hệ thống tự thay đúng tên từng người.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-gold" onclick="generateLinks()">⚡ Tạo danh sách link</button>
+        <button class="btn-outline" onclick="clearAll()">🗑️ Xóa danh sách</button>
+      </div>
+    </section>
+
+    <section class="panel" id="result-panel" style="display: none;">
+      <div class="result-header">
+        <h2 id="result-count">Danh sách (0 người)</h2>
+        <div class="btn-row" style="margin-top: 0;">
+          <button class="btn-outline btn-sm" onclick="copyAll('links')">📋 Copy tất cả (Tên + Link)</button>
+          <button class="btn-outline btn-sm" onclick="copyAll('messages')">💬 Copy tất cả (Tin nhắn)</button>
+        </div>
+      </div>
+      <div class="list-wrap" id="result-list"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">Đã sao chép!</div>
+
+  <script>
+    let generatedItems = [];
+
+    // Tự động nhận diện link GitHub Pages hiện tại nếu file được đặt chung thư mục
+    (function init() {
+      const savedBase = localStorage.getItem("grad_base_url");
+      const savedTpl = localStorage.getItem("grad_msg_tpl");
+      const baseInput = document.getElementById("base-url");
+      const tplInput = document.getElementById("msg-template");
+
+      if (savedBase) {
+        baseInput.value = savedBase;
+      } else if (window.location.protocol.startsWith("http")) {
+        baseInput.value = window.location.href.replace(/\/[^\/]*$/, "/");
+      }
+
+      if (savedTpl) {
+        tplInput.value = savedTpl;
+      }
+    })();
+
+    function normalizeBaseUrl(raw) {
+      let url = raw.trim();
+      if (!url) return "";
+      url = url.split("?")[0];
+      if (!url.endsWith("/")) url += "/";
+      return url;
+    }
+
+    function generateLinks() {
+      const baseInput = document.getElementById("base-url").value;
+      const baseUrl = normalizeBaseUrl(baseInput);
+      const rawNames = document.getElementById("names-input").value;
+      const msgTemplate = document.getElementById("msg-template").value;
+
+      if (!baseUrl) {
+        alert("Anh nhập link trang web GitHub Pages trước nhé!");
+        return;
+      }
+
+      // Lưu lại cấu hình tiện cho lần sau
+      localStorage.setItem("grad_base_url", baseUrl);
+      localStorage.setItem("grad_msg_tpl", msgTemplate);
+
+      // Tách chuỗi theo dấu phẩy, chấm phẩy hoặc xuống dòng
+      const names = rawNames
+        .split(/[\n,;]+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (names.length === 0) {
+        alert("Anh chưa nhập tên nào vào danh sách!");
+        return;
+      }
+
+      generatedItems = names.map(name => {
+        const link = `${baseUrl}?to=${encodeURIComponent(name)}`;
+        const message = msgTemplate
+          .replace(/\{ten\}/g, name)
+          .replace(/\{link\}/g, link);
+        return { name, link, message, copied: false };
+      });
+
+      renderList();
+    }
+
+    function renderList() {
+      const panel = document.getElementById("result-panel");
+      const countEl = document.getElementById("result-count");
+      const listEl = document.getElementById("result-list");
+
+      panel.style.display = "block";
+      countEl.textContent = `Danh sách (${generatedItems.length} người)`;
+      listEl.innerHTML = "";
+
+      generatedItems.forEach((item, idx) => {
+        const card = document.createElement("div");
+        card.className = `item-card${item.copied ? " copied" : ""}`;
+        card.id = `card-${idx}`;
+
+        const info = document.createElement("div");
+        info.className = "item-info";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "item-name";
+        const nameText = document.createElement("span");
+        nameText.textContent = `${idx + 1}. ${item.name}`;
+        const badge = document.createElement("span");
+        badge.className = "badge-done";
+        badge.textContent = "✓ Đã copy";
+        nameEl.appendChild(nameText);
+        nameEl.appendChild(badge);
+
+        const urlEl = document.createElement("div");
+        urlEl.className = "item-url";
+        urlEl.textContent = item.link;
+
+        info.appendChild(nameEl);
+        info.appendChild(urlEl);
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+
+        const previewBtn = document.createElement("a");
+        previewBtn.className = "btn-preview";
+        previewBtn.href = item.link;
+        previewBtn.target = "_blank";
+        previewBtn.rel = "noopener";
+        previewBtn.textContent = "👁️ Xem";
+
+        const copyLinkBtn = document.createElement("button");
+        copyLinkBtn.className = "btn-outline btn-sm";
+        copyLinkBtn.textContent = "🔗 Copy Link";
+        copyLinkBtn.onclick = () => copyOne(idx, "link");
+
+        const copyMsgBtn = document.createElement("button");
+        copyMsgBtn.className = "btn-gold btn-sm";
+        copyMsgBtn.textContent = "💬 Copy Lời Mời";
+        copyMsgBtn.onclick = () => copyOne(idx, "message");
+
+        actions.appendChild(previewBtn);
+        actions.appendChild(copyLinkBtn);
+        actions.appendChild(copyMsgBtn);
+
+        card.appendChild(info);
+        card.appendChild(actions);
+        listEl.appendChild(card);
+      });
+    }
+
+    async function copyText(text, toastMsg) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(toastMsg);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(toastMsg);
+      }
+    }
+
+    function copyOne(idx, type) {
+      const item = generatedItems[idx];
+      const text = type === "link" ? item.link : item.message;
+      const label = type === "link" ? `Đã copy link của ${item.name}` : `Đã copy lời mời cho ${item.name}`;
+      copyText(text, label);
+
+      item.copied = true;
+      const card = document.getElementById(`card-${idx}`);
+      if (card) card.classList.add("copied");
+    }
+
+    function copyAll(mode) {
+      if (generatedItems.length === 0) return;
+      const content = generatedItems
+        .map(item => mode === "links" ? `${item.name}: ${item.link}` : item.message)
+        .join("\n\n");
+      copyText(content, `Đã copy toàn bộ ${generatedItems.length} mục!`);
+    }
+
+    function clearAll() {
+      document.getElementById("names-input").value = "";
+      document.getElementById("result-panel").style.display = "none";
+      generatedItems = [];
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+  </script>
+</body>
+</html>

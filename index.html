@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thiệp Mời Lễ Tốt Nghiệp</title>
+
+  <!-- Thẻ hiển thị ảnh & mô tả khi gửi link qua Zalo / Messenger -->
+  <meta property="og:title" content="Thư Mời Dự Lễ Tốt Nghiệp 🎓" />
+  <meta property="og:description" content="Trân trọng kính mời bạn đến chung vui trong ngày lễ tốt nghiệp của mình!" />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --env-base: #1b2845;
+      --env-flap: #24365c;
+      --env-pocket: #16223d;
+      --gold: #e6b85c;
+      --gold-light: #f8dfa3;
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+      /* Đổi tỷ lệ này cho khớp với Canva của anh: '5 / 7' (thiệp dọc), '9 / 16' (điện thoại), hoặc '16 / 9' (ngang) */
+      --canva-ratio: 5 / 7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Canvas pháo giấy */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ================= MÀN HÌNH PHONG BÌ ================= */
+    #envelope-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      background: radial-gradient(circle at center, #1b263b 0%, #0a0f1c 100%);
+      transition: opacity 0.7s ease, transform 0.7s ease, visibility 0.7s;
+    }
+
+    #envelope-screen.hidden {
+      opacity: 0;
+      transform: scale(1.06);
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .invite-to-label {
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .guest-name-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: min(340px, 88vw);
+      aspect-ratio: 16 / 11;
+      perspective: 1200px;
+      cursor: pointer;
+      user-select: none;
+      filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.55));
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover {
+      transform: translateY(-4px);
+    }
+
+    .env-back {
+      position: absolute;
+      inset: 0;
+      background: var(--env-base);
+      border-radius: 10px;
+      z-index: 1;
+    }
+
+    /* Tờ thiệp nhỏ ló lên khi mở nắp */
+    .env-card-preview {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      top: 10%;
+      bottom: 8%;
+      background: linear-gradient(135deg, #fffdf7 0%, #f5ebd6 100%);
+      color: #1e293b;
+      border-radius: 8px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
+    }
+
+    .env-card-preview span {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8c6218;
+      font-weight: 600;
+    }
+
+    .env-card-preview h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem;
+      margin-top: 4px;
+      color: #0f172a;
+    }
+
+    /* Thân trước phong bì */
+    .env-pocket {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .env-left {
+      position: absolute;
+      inset: 0;
+      background: #1f3054;
+      clip-path: polygon(0 0, 52% 52%, 0 100%);
+    }
+
+    .env-right {
+      position: absolute;
+      inset: 0;
+      background: #192746;
+      clip-path: polygon(100% 0, 48% 52%, 100% 100%);
+    }
+
+    .env-bottom {
+      position: absolute;
+      inset: 0;
+      background: var(--env-pocket);
+      clip-path: polygon(0 100%, 50% 44%, 100% 100%);
+      border-top: 1px solid rgba(230, 184, 92, 0.25);
+    }
+
+    /* Nắp phong bì */
+    .env-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 58%;
+      background: var(--env-flap);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s linear 0.3s;
+      z-index: 5;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    /* Con dấu sáp */
+    .wax-seal {
+      position: absolute;
+      top: 54%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f7dc96, #c9922b 70%, #8f6211 100%);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.45), inset 0 0 0 3px rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 6;
+      animation: pulse 1.8s infinite;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230, 184, 92, 0.55), 0 4px 14px rgba(0,0,0,0.45); }
+      50% { box-shadow: 0 0 0 14px rgba(230, 184, 92, 0), 0 4px 14px rgba(0,0,0,0.45); }
+    }
+
+    /* Trạng thái đã mở nắp */
+    .envelope-wrapper.is-open .wax-seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    .envelope-wrapper.is-open .env-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-wrapper.is-open .env-card-preview {
+      transform: translateY(-48%);
+    }
+
+    .tap-hint {
+      margin-top: 28px;
+      font-size: 0.92rem;
+      color: var(--gold-light);
+      opacity: 0.85;
+      letter-spacing: 0.5px;
+    }
+
+    /* ================= MÀN HÌNH NỘI DUNG THIỆP ================= */
+    #invitation-section {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 16px 70px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      display: none;
+    }
+
+    #invitation-section.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(230, 184, 92, 0.35);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-pill:hover { background: rgba(230, 184, 92, 0.18); }
+
+    .hero-greeting {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .hero-greeting .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(230, 184, 92, 0.15);
+      border: 1px solid rgba(230, 184, 92, 0.4);
+      color: var(--gold);
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero-greeting h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .hero-greeting h1 strong {
+      color: var(--gold);
+    }
+
+    /* Khung nhúng Canva */
+    .canva-container {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto 28px;
+      background: #111827;
+      border-radius: 16px;
+      padding: 10px;
+      border: 1px solid rgba(230, 184, 92, 0.3);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    }
+
+    .canva-frame-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: var(--canva-ratio);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0b1120;
+    }
+
+    .canva-frame-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .canva-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    /* Đếm ngược */
+    .card-box {
+      background: rgba(30, 41, 59, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 22px 18px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-box h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .cd-item {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(230, 184, 92, 0.25);
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+    }
+
+    .cd-num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+    }
+
+    .cd-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Thông tin & Nút hành động */
+    .info-list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+      font-size: 0.96rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .info-list strong { color: #fff; }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e6b85c 0%, #c89128 100%);
+      color: #0f172a;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 13px 16px;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.06); }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 13px 16px;
+      border-radius: 12px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Nhạc nền nhẹ nhàng (có thể thay link mp3 khác hoặc để trống nếu không dùng) -->
+  <audio id="bg-music" loop preload="auto"></audio>
+
+  <!-- MÀN HÌNH 1: PHONG BÌ ĐÓNG -->
+  <section id="envelope-screen">
+    <p class="invite-to-label">Thân gửi</p>
+    <h2 class="guest-name-title" id="guest-name-display">Bạn thân mến</h2>
+
+    <div class="envelope-wrapper" id="envelope" onclick="openInvitation()">
+      <div class="env-back"></div>
+      <div class="env-card-preview">
+        <span>Graduation Invitation</span>
+        <h3 id="preview-grad-name">Lễ Tốt Nghiệp</h3>
+      </div>
+      <div class="env-pocket">
+        <div class="env-left"></div>
+        <div class="env-right"></div>
+        <div class="env-bottom"></div>
+      </div>
+      <div class="env-flap"></div>
+      <div class="wax-seal" title="Mở thiệp">🎓</div>
+    </div>
+
+    <p class="tap-hint">✨ Chạm vào phong bì để mở thiệp mời ✨</p>
+  </section>
+
+  <!-- MÀN HÌNH 2: NỘI DUNG THIỆP CANVA + TIỆN ÍCH -->
+  <main id="invitation-section">
+    <div class="top-bar">
+      <button class="btn-pill" onclick="closeInvitation()">✉️ Đóng lại phong bì</button>
+      <button class="btn-pill" id="music-toggle-btn" onclick="toggleMusic()" style="display:none;">🎵 Đang phát nhạc</button>
+    </div>
+
+    <div class="hero-greeting">
+      <span class="badge">Thư Mời Tốt Nghiệp</span>
+      <h1>Trân trọng kính mời <strong id="hero-guest-name">bạn</strong> đến chung vui cùng <strong id="hero-grad-name">mình</strong></h1>
+    </div>
+
+    <!-- Khung nhúng Canva -->
+    <div class="canva-container">
+      <div class="canva-frame-wrap">
+        <iframe
+          id="canva-iframe"
+          loading="lazy"
+          allowfullscreen="allowfullscreen"
+          allow="fullscreen">
+        </iframe>
+      </div>
+      <div class="canva-actions">
+        <a id="canva-external-link" href="#" target="_blank" rel="noopener" class="btn-pill">
+          🔍 Mở toàn màn hình nếu chữ nhỏ
+        </a>
+      </div>
+    </div>
+
+    <!-- Đếm ngược -->
+    <div class="card-box">
+      <h2>⏳ Đếm ngược tới ngày lễ</h2>
+      <div class="countdown-grid">
+        <div class="cd-item"><span class="cd-num" id="cd-days">00</span><span class="cd-label">Ngày</span></div>
+        <div class="cd-item"><span class="cd-num" id="cd-hours">00</span><span class="cd-label">Giờ</span></div>
+        <div class="cd-item"><span class="cd-num" id="cd-mins">00</span><span class="cd-label">Phút</span></div>
+        <div class="cd-item"><span class="cd-num" id="cd-secs">00</span><span class="cd-label">Giây</span></div>
+      </div>
+    </div>
+
+    <!-- Thông tin chỉ đường & Liên hệ -->
+    <div class="card-box">
+      <h2>📍 Thời gian & Địa điểm</h2>
+      <div class="info-list">
+        <div><strong>🕒 Thời gian:</strong> <span id="info-time">Cập nhật thời gian tại CONFIG</span></div>
+        <div><strong>🏛️ Địa điểm:</strong> <span id="info-location">Cập nhật địa điểm tại CONFIG</span></div>
+        <div><strong>📞 Liên hệ khi đến nơi:</strong> <span id="info-contact">Cập nhật SĐT / Zalo tại CONFIG</span></div>
+      </div>
+      <div class="action-buttons">
+        <a id="btn-maps" href="#" target="_blank" rel="noopener" class="btn-primary">🗺️ Chỉ đường Google Maps</a>
+        <a id="btn-call" href="#" class="btn-secondary">📱 Gọi điện cho mình</a>
+        <a id="btn-rsvp" href="#" target="_blank" rel="noopener" class="btn-secondary">✅ Xác nhận tham dự</a>
+      </div>
+    </div>
+
+    <footer>
+      Sự hiện diện của bạn là niềm vinh hạnh lớn đối với mình! 🎓✨
+    </footer>
+  </main>
+
+  <script>
+    // =========================================================================
+    // KHU VỰC CẤU HÌNH (Anh chỉ cần sửa các thông tin bên dưới theo ý mình)
+    // =========================================================================
+    const CONFIG = {
+      // 1. Link Canva của anh (có thể dán link /view hoặc link /view?embed đều được)
+      canvaUrl: "https://www.canva.com/design/DAHb6emmPHo/8pjOAMxpaOPjybZHO6-f6g/view",
+
+      // 2. Tỷ lệ khung hình Canva: "5 / 7" (thiệp dọc), "9 / 16" (story dọc), "16 / 9" (slide ngang)
+      canvaAspectRatio: "5 / 7",
+
+      // 3. Tên của anh & lời mời
+      graduateName: "Anh [Tên Của Anh]",
+      defaultGuestName: "Bạn thân mến",
+
+      // 4. Ngày giờ diễn ra buổi lễ (Định dạng: YYYY-MM-DDTHH:MM:SS)
+      eventDateISO: "2025-06-15T08:30:00",
+
+      // 5. Thông tin chi tiết hiển thị bên dưới thiệp
+      timeText: "08:30, Chủ Nhật ngày 15/06/2025",
+      locationText: "Hội trường A - Trường Đại học ...",
+      contactText: "09xx.xxx.xxx (Zalo)",
+
+      // 6. Các đường link nút bấm (Để "#" nếu muốn ẩn hoặc chưa có)
+      googleMapsUrl: "https://maps.app.goo.gl/apdPMWvaqZN8VTBV9",
+      phoneNumber: "0907023096",
+      rsvpFormUrl: "", // Có thể dán link Google Form xác nhận tham dự vào đây
+
+      // 7. Link file nhạc nền MP3 (Để trống "" nếu không muốn phát nhạc)
+      musicUrl: ""
+    };
+    // =========================================================================
+
+    // Tự động chuyển link Canva thường sang link Embed
+    function toCanvaEmbedUrl(url) {
+      if (!url) return "";
+      const cleanUrl = url.split("?")[0];
+      return cleanUrl.endsWith("/view") ? `${cleanUrl}?embed` : url;
+    }
+
+    // Lấy tên khách từ URL (?to=Tên_Bạn hoặc ?guest=Tên_Bạn)
+    function getGuestFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("to") || params.get("guest") || CONFIG.defaultGuestName;
+    }
+
+    // Khởi tạo dữ liệu lên giao diện
+    (function init() {
+      const guestName = getGuestFromUrl();
+      document.getElementById("guest-name-display").textContent = guestName;
+      document.getElementById("hero-guest-name").textContent = guestName;
+      document.getElementById("hero-grad-name").textContent = CONFIG.graduateName;
+      document.getElementById("preview-grad-name").textContent = `Lễ Tốt Nghiệp - ${CONFIG.graduateName}`;
+
+      document.documentElement.style.setProperty("--canva-ratio", CONFIG.canvaAspectRatio);
+
+      const embedUrl = toCanvaEmbedUrl(CONFIG.canvaUrl);
+      document.getElementById("canva-iframe").src = embedUrl;
+      document.getElementById("canva-external-link").href = CONFIG.canvaUrl;
+
+      document.getElementById("info-time").textContent = CONFIG.timeText;
+      document.getElementById("info-location").textContent = CONFIG.locationText;
+      document.getElementById("info-contact").textContent = CONFIG.contactText;
+
+      document.getElementById("btn-maps").href = CONFIG.googleMapsUrl;
+      document.getElementById("btn-call").href = `tel:${CONFIG.phoneNumber}`;
+
+      const rsvpBtn = document.getElementById("btn-rsvp");
+      if (CONFIG.rsvpFormUrl) {
+        rsvpBtn.href = CONFIG.rsvpFormUrl;
+      } else {
+        rsvpBtn.style.display = "none";
+      }
+
+      if (CONFIG.musicUrl) {
+        document.getElementById("bg-music").src = CONFIG.musicUrl;
+        document.getElementById("music-toggle-btn").style.display = "inline-flex";
+      }
+    })();
+
+    let isOpened = false;
+    function openInvitation() {
+      if (isOpened) return;
+      isOpened = true;
+
+      const envelope = document.getElementById("envelope");
+      const envScreen = document.getElementById("envelope-screen");
+      const invSection = document.getElementById("invitation-section");
+
+      envelope.classList.add("is-open");
+      launchConfetti();
+
+      // Phát nhạc nếu có cấu hình
+      const audio = document.getElementById("bg-music");
+      if (CONFIG.musicUrl && audio.src) {
+        audio.play().catch(() => {});
+      }
+
+      setTimeout(() => {
+        envScreen.classList.add("hidden");
+        invSection.classList.add("visible");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 1250);
+    }
+
+    function closeInvitation() {
+      isOpened = false;
+      const envelope = document.getElementById("envelope");
+      const envScreen = document.getElementById("envelope-screen");
+      const invSection = document.getElementById("invitation-section");
+
+      invSection.classList.remove("visible");
+      envelope.classList.remove("is-open");
+      envScreen.classList.remove("hidden");
+    }
+
+    function toggleMusic() {
+      const audio = document.getElementById("bg-music");
+      const btn = document.getElementById("music-toggle-btn");
+      if (audio.paused) {
+        audio.play();
+        btn.textContent = "🎵 Đang phát nhạc";
+      } else {
+        audio.pause();
+        btn.textContent = "🔇 Đã tắt nhạc";
+      }
+    }
+
+    // Đếm ngược
+    function updateCountdown() {
+      const target = new Date(CONFIG.eventDateISO).getTime();
+      const now = Date.now();
+      const diff = Math.max(0, target - now);
+
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("cd-days").textContent = String(d).padStart(2, "0");
+      document.getElementById("cd-hours").textContent = String(h).padStart(2, "0");
+      document.getElementById("cd-mins").textContent = String(m).padStart(2, "0");
+      document.getElementById("cd-secs").textContent = String(s).padStart(2, "0");
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Hiệu ứng pháo giấy đơn giản (không cần thư viện ngoài)
+    function launchConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ["#e6b85c", "#f8dfa3", "#ffffff", "#60a5fa", "#f472b6"];
+      const pieces = Array.from({ length: 90 }, () => ({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 0.75) * 14,
+        size: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * 360,
+        vRot: (Math.random() - 0.5) * 10
+      }));
+
+      let frame = 0;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.25;
+          p.rot += p.vRot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          ctx.restore();
+        });
+        frame++;
+        if (frame < 140) requestAnimationFrame(draw);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      draw();
+    }
+  </script>
+</body>
+</html>
